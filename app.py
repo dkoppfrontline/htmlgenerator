@@ -42,4 +42,4 @@ def replace_copy_preserving_format(template_html, new_text):
     return str(soup)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=10000)
