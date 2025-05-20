@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WinRed Copy Replacer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+
+        textarea {
+            width: 90%;
+            height: 300px;
+            margin: 10px 0;
+            font-size: 16px;
+            padding: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #D41830;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        button:hover {
+            background-color: #b11326;
+        }
+
+        .copy-button {
+            background-color: #4CAF50;
+        }
+
+        .copy-button:hover {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+<body>
+    <h1>WinRed Copy Replacer</h1>
+
+    <form method="POST">
+        <div>
+            <h3>1. Paste WinRed Source Code (template)</h3>
+            <textarea name="template_text" required placeholder="Paste WinRed source code here..."></textarea>
+        </div>
+
+        <div>
+            <h3>2. Paste New Copy</h3>
+            <textarea name="new_copy" required placeholder="Paste new copy here..."></textarea>
+        </div>
+
+        <button type="submit">Generate New Winred Code</button>
+    </form>
+
+    {% if generated_html %}
+        <div>
+            <h3>3. Result</h3>
+            <textarea id="result" readonly>{{ generated_html }}</textarea><br>
+            <button class="copy-button" onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
+    {% endif %}
+
+    <script>
+        function copyToClipboard() {
+            const textarea = document.getElementById("result");
+            textarea.select();
+            document.execCommand("copy");
+            alert("Copied to clipboard!");
+        }
+    </script>
+</body>
+</html>
