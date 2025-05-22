@@ -17,47 +17,27 @@ def index():
 def replace_copy_preserving_format(template_html, new_text):
     soup = BeautifulSoup(template_html, "html.parser")
 
+    # Break the new copy into lines, ignoring blank ones
     new_lines = [line.strip() for line in new_text.split("\n") if line.strip()]
-    new_index = 0
+    
+    # Find all <p> tags with text content (ignoring empty lines)
+    p_tags = [p for p in soup.find_all("p") if p.get_text(strip=True)]
 
-    p_tags = soup.find_all("p")
+    for i, (p, new_line) in enumerate(zip(p_tags, new_lines)):
+        # Clear current tag contents and insert the new line as text, keeping the formatting span
+        for tag in p.find_all(text=True):
+            tag.replace_with("")  # Clear existing text
 
-    last_formatted_tag = None
+        # Find the deepest span or element and update it
+        deepest = p
+        while len(deepest.contents) == 1 and hasattr(deepest.contents[0], 'contents'):
+            deepest = deepest.contents[0]
 
-    for p in p_tags:
-        if new_index >= len(new_lines):
-            break
-
-        # Skip <p> with no spans and no visible style
-        if not p.get_text(strip=True) and not p.find("span"):
-            continue
-
-        # Try to find the deepest span in this <p>
-        current = p
-        while len(current.contents) == 1 and hasattr(current.contents[0], 'contents'):
-            current = current.contents[0]
-
-        # If it contains a span or formatting, save it as fallback
-        if p.find("span"):
-            last_formatted_tag = p.decode_contents()
-
-        # Now replace the text
-        if current.string is not None:
-            current.string.replace_with(new_lines[new_index])
+        # Replace only the text, not structure
+        if deepest.string is not None:
+            deepest.string.replace_with(new_line)
         else:
-            current.append(new_lines[new_index])
-
-        # If the <p> was blank (unstyled), apply previous formatting
-        if not p.find("span") and last_formatted_tag:
-            styled_fallback = BeautifulSoup(f"<p>{last_formatted_tag}</p>", "html.parser").p
-            p.clear()
-            for child in styled_fallback.contents:
-                # Replace text inside fallback span with new text
-                if child.name == "span" and child.string:
-                    child.string.replace_with(new_lines[new_index])
-                p.append(child)
-
-        new_index += 1
+            deepest.append(new_line)
 
     return str(soup)
 
